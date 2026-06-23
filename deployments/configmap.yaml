@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kube-agents-config
+data:
+  config.yaml: |
+    server:
+      http:
+        enabled: true
+        port: 8080
+      grpc:
+        enabled: false
+        port: 9090
+      a2a:
+        enabled: false
+        host: "kube-agents.default.svc.cluster.local:8080"
+    model:
+      provider: deepseek
+      name: deepseek-chat
+      apiKeyEnv: DEEPSEEK_API_KEY
+    auth:
+      mode: serviceaccount
+    session:
+      backend: memory
+      redis: {addr: "redis:6379", db: 0}
+    memory:
+      backend: memory
+      redis: {addr: "redis:6379", db: 1}
+    plugins:
+      - audit
+      - ratelimit
+      - logging
+    skillsDir: /skills

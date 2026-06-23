@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kube-agents
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kube-agents
+  template:
+    metadata:
+      labels:
+        app: kube-agents
+    spec:
+      serviceAccountName: kube-agents
+      containers:
+        - name: kube-agents
+          image: codefuture/kube-agents:latest
+          command: ["kube-agents"]
+          args: ["serve", "--config", "/etc/kube-agents/config.yaml"]
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: DEEPSEEK_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: kube-agents-secrets
+                  key: deepseek_api_key
+          volumeMounts:
+            - name: config
+              mountPath: /etc/kube-agents
+            - name: skills
+              mountPath: /skills
+          resources:
+            requests: {memory: "128Mi", cpu: "100m"}
+            limits: {memory: "512Mi", cpu: "500m"}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10
+      volumes:
+        - name: config
+          configMap:
+            name: kube-agents-config
+        - name: skills
+          configMap:
+            name: kube-agents-skills

@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package kube_agents.v1;
+
+option go_package = "github.com/codefuture-io/kube-agents/api/proto/kube-agents/v1;agentv1";
+
+// AgentService provides the gRPC API for kube-agents.
+service AgentService {
+  // Chat sends a message to the agent and returns a streaming response.
+  rpc Chat(ChatRequest) returns (stream ChatResponse);
+
+  // ListTools returns all available K8s tools.
+  rpc ListTools(ListToolsRequest) returns (ListToolsResponse);
+}
+
+message ChatRequest {
+  string user_id = 1;
+  string session_id = 2;
+  string message = 3;
+  string token = 4; // auth token
+}
+
+message ChatResponse {
+  string content = 1;
+  string reasoning_content = 2;
+  string tool_name = 3;
+  string tool_args = 4;
+  bool done = 5;
+  string error = 6;
+}
+
+message ListToolsRequest {}
+
+message ListToolsResponse {
+  message Tool {
+    string name = 1;
+    string description = 2;
+    string input_schema = 3;
+  }
+  repeated Tool tools = 1;
+}

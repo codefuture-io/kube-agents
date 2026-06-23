@@ -1,0 +1,44 @@
+server:
+  http:
+    enabled: true
+    port: 8080
+  grpc:
+    enabled: false
+    port: 9090
+  a2a:
+    enabled: false
+    host: "localhost:8080"
+
+model:
+  provider: deepseek
+  name: deepseek-chat
+  apiKeyEnv: DEEPSEEK_API_KEY
+
+auth:
+  mode: serviceaccount
+  jwt:
+    issuer: kube-agents
+    secretEnv: JWT_SECRET
+
+session:
+  backend: memory
+  redis:
+    addr: "localhost:6379"
+    passwordEnv: REDIS_PASSWORD
+    db: 0
+
+memory:
+  backend: memory
+  redis:
+    addr: "localhost:6379"
+    passwordEnv: REDIS_PASSWORD
+    db: 1
+
+knowledge:
+  sources: []
+
+mcpServers: []
+
+plugins: []
+
+skillsDir: ./skills/
