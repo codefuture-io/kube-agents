@@ -29,13 +29,15 @@ import (
 
 // These are set during build time via -ldflags.
 var (
-	Version   = "latest"
-	GitCommit = "N/A"
-	BuildDate = "N/A"
+	Organization = "CodeFuture-io"
+	Version      = "latest"
+	GitCommit    = "N/A"
+	BuildDate    = "N/A"
 )
 
 // Info holds the version information of kube-agents.
 type Info struct {
+	Organization string `json:"organization"`
 	Version      string `json:"version"`
 	GitCommit    string `json:"git_commit"`
 	BuildDate    string `json:"build_date"`
@@ -51,6 +53,7 @@ func GetVersion() Info {
 	var memStats runtime.MemStats
 	runtime.ReadMemStats(&memStats)
 	return Info{
+		Organization: Organization,
 		Version:      Version,
 		GitCommit:    GitCommit,
 		BuildDate:    BuildDate,
@@ -81,8 +84,13 @@ func Print() {
 	})
 
 	t.AppendRow([]interface{}{
-		v.Version, v.GitCommit, v.BuildDate,
-		v.GoVersion, v.Compiler, v.Platform,
+		v.Organization,
+		v.Version,
+		v.GitCommit,
+		v.BuildDate,
+		v.GoVersion,
+		v.Compiler,
+		v.Platform,
 		strconv.Itoa(v.RuntimeCores) + " cores",
 		strconv.Itoa(v.TotalMem) + " KB",
 	})
