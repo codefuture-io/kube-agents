@@ -51,12 +51,10 @@ memory:
 
 # RAG (Retrieval-Augmented Generation) knowledge store.
 knowledge:
-  # Static document sources loaded at startup.
-  sources: []
-  # - type: file
-  #   path: ./docs/k8s-reference/
-  # - type: url
-  #   path: https://kubernetes.io/docs/
+  # Static document sources loaded at startup (built-in text search, no embedding API needed).
+  sources:
+    - type: file
+      path: ./docs/k8s-reference/
 
   # S3-compatible object storage for knowledge documents.
   s3:

@@ -142,6 +142,13 @@ func runServe(cfg config.Config, opts *options.Options) error {
 		slog.Info("K8s tools registered", "namespace", k8sClients.Namespace)
 	}
 
+	// Knowledge store (built-in text search, no embedding API needed).
+	knowledgeStore, _ := knowledgepkg.NewStore(cfg.Knowledge, apiKey)
+	if knowledgeStore != nil && knowledgeStore.SearchTool() != nil {
+		tools = append(tools, knowledgeStore.SearchTool())
+		slog.Info("knowledge_search tool registered")
+	}
+
 	genConfig := model.GenerationConfig{
 		Stream:      true,
 		Temperature: ptrOf(0.7),
@@ -171,14 +178,6 @@ func runServe(cfg config.Config, opts *options.Options) error {
 		runnerOpts = append(runnerOpts, runner.WithPlugins(plugins...))
 		slog.Info("Plugins loaded", "names", pluginReg.Names())
 	}
-	// Knowledge store (requires OpenAI-compatible embeddings API).
-	knowledgeStore, _ := knowledgepkg.NewStore(cfg.Knowledge, apiKey)
-	if knowledgeStore != nil && knowledgeStore.SearchTool() != nil {
-		tools = append(tools, knowledgeStore.SearchTool())
-	}
-
-	// Rebuild agent with knowledge search tool included.
-	llmAgent = agent.MustNewLLMAgent(modelInstance, tools, genConfig)
 	r := runner.NewRunner("kube-agents-app", llmAgent, runnerOpts...)
 	defer r.Close()
 
@@ -247,6 +246,13 @@ func runChat(opts *options.Options) error {
 	} else {
 		tools = append(tools, k8stools.MustNewToolSet(k8sClients)...)
 		slog.Info("K8s tools registered", "namespace", k8sClients.Namespace)
+	}
+
+	// Knowledge store (built-in text search, no embedding API needed).
+	knowledgeStore, _ := knowledgepkg.NewStore(config.DefaultConfig().Knowledge, apiKey)
+	if knowledgeStore != nil && knowledgeStore.SearchTool() != nil {
+		tools = append(tools, knowledgeStore.SearchTool())
+		slog.Info("knowledge_search tool registered")
 	}
 
 	genConfig := model.GenerationConfig{
